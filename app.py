@@ -60,6 +60,19 @@ def get_shortest_path(
         end_player
     )
 
+@st.cache_data
+def get_all_shortest_paths(
+    start_player,
+    end_player
+):
+    return list(
+        nx.all_shortest_paths(
+            G,
+            start_player,
+            end_player
+        )
+    )
+
 # =====================================
 # FORMAT TEAM/YEAR CONNECTIONS
 # =====================================
@@ -292,6 +305,20 @@ for i in range(st.session_state["num_bridges"]):
 
     bridges.append(bridge)
 
+import random
+
+if st.button("🎲 Random Challenge"):
+
+    players = random.sample(
+        player_list,
+        2
+    )
+
+    st.session_state["start_player"] = players[0]
+    st.session_state["end_player"] = players[1]
+
+    st.rerun()
+
 # =====================================
 # ACTION BUTTONS
 # =====================================
@@ -373,13 +400,20 @@ if check_clicked:
 
             else:
 
-                all_shortest = list(
-                    nx.all_shortest_paths(
-                        G,
+                try:
+
+                    all_shortest = get_all_shortest_paths(
                         start_player,
                         end_player
                     )
-                )
+
+                except Exception:
+
+                    st.error(
+                        "Too many shortest paths to display."
+                    )
+
+                    st.stop()
 
                 MAX_PATHS = 100
                 display_paths = all_shortest[:MAX_PATHS]
@@ -400,14 +434,14 @@ if check_clicked:
 
                 score = max(
                     0,
-                    100 - (extra_degrees * 10)
+                    100 - (extra_degrees * 15)
                 )
 
                 st.success(
                     "✅ Valid Chain"
                 )
 
-                m1, m2, m3, m4 = st.columns(4)
+                m1, m2, m3, m4, m5 = st.columns(5)
 
                 m1.metric(
                     "Your Degrees",
@@ -427,6 +461,11 @@ if check_clicked:
                 m4.metric(
                     "Score",
                     f"{score}/100"
+                )
+
+                m5.metric(
+                    "Shortest Paths",
+                    len(all_shortest)
                 )
 
                 # ==============================
