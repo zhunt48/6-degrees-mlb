@@ -8,7 +8,6 @@ import networkx as nx
 import pickle
 import random
 from itertools import islice
-from streamlit_searchbox import st_searchbox
 
 # =====================================
 # PAGE CONFIG
@@ -47,23 +46,6 @@ def get_player_list():
     )
 
 player_list = get_player_list()
-
-def search_players(searchterm: str):
-
-    if not searchterm:
-        return []
-
-    matches = []
-
-    for player in player_list:
-
-        if searchterm.lower() in display_lookup[player].lower():
-            matches.append(display_lookup[player])
-
-        if len(matches) >= 25:
-            break
-
-    return matches
 
 # =====================================
 # SHORTEST PATH CACHE
@@ -180,15 +162,16 @@ def clear_all():
 
 
 def clear_start():
-    st.session_state["start_search"] = None
+    st.session_state["start_player"] = None
 
 
 def clear_end():
-    st.session_state["end_search"] = None
+    st.session_state["end_player"] = None
 
 
 def clear_bridge(idx):
-    st.session_state[f"bridge_search_{idx}"] = None
+    st.session_state[f"bridge_{idx}"] = None
+
 
 def random_challenge():
 
@@ -197,13 +180,8 @@ def random_challenge():
         2
     )
 
-    st.session_state["start_search"] = (
-        display_lookup[players[0]]
-    )
-
-    st.session_state["end_search"] = (
-        display_lookup[players[1]]
-    )
+    st.session_state["start_player"] = players[0]
+    st.session_state["end_player"] = players[1]
 
 # =====================================
 # PAGE TITLE
@@ -223,20 +201,14 @@ col1, col2 = st.columns([20, 1])
 
 with col1:
 
-    start_name = st_searchbox(
-        search_players,
-        key="start_search"
+    start_player = st.selectbox(
+        "Starting Player",
+        player_list,
+        key="start_player",
+        index=None,
+        placeholder="Type a player name...",
+        format_func=lambda p: display_lookup[p]
     )
-
-    start_player = None
-
-    if start_name:
-
-        for pid, name in display_lookup.items():
-
-            if name == start_name:
-                start_player = pid
-                break
 
 with col2:
 
@@ -257,20 +229,14 @@ col1, col2 = st.columns([20, 1])
 
 with col1:
 
-    end_name = st_searchbox(
-        search_players,
-        key="end_search"
+    end_player = st.selectbox(
+        "Ending Player",
+        player_list,
+        key="end_player",
+        index=None,
+        placeholder="Type a player name...",
+        format_func=lambda p: display_lookup[p]
     )
-
-    end_player = None
-
-    if end_name:
-
-        for pid, name in display_lookup.items():
-
-            if name == end_name:
-                end_player = pid
-                break
 
 with col2:
 
@@ -332,20 +298,14 @@ for i in range(st.session_state["num_bridges"]):
 
     with col1:
 
-        bridge_name = st_searchbox(
-            search_players,
-            key=f"bridge_search_{i}"
+        bridge = st.selectbox(
+            f"Bridge Player {i + 1}",
+            player_list,
+            key=key,
+            index=None,
+            placeholder="Type a player name...",
+            format_func=lambda p: display_lookup[p]
         )
-
-        bridge = None
-
-        if bridge_name:
-
-            for pid, name in display_lookup.items():
-
-                if name == bridge_name:
-                    bridge = pid
-                    break
 
     with col2:
 
