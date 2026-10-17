@@ -180,15 +180,15 @@ def clear_all():
 
 
 def clear_start():
-    st.session_state["start_player"] = None
+    st.session_state["start_search"] = None
 
 
 def clear_end():
-    st.session_state["end_player"] = None
+    st.session_state["end_search"] = None
 
 
 def clear_bridge(idx):
-    st.session_state[f"bridge_{idx}"] = None
+    st.session_state[f"bridge_search_{idx}"] = None
 
 def random_challenge():
 
@@ -197,8 +197,13 @@ def random_challenge():
         2
     )
 
-    st.session_state["start_player"] = players[0]
-    st.session_state["end_player"] = players[1]
+    st.session_state["start_search"] = (
+        display_lookup[players[0]]
+    )
+
+    st.session_state["end_search"] = (
+        display_lookup[players[1]]
+    )
 
 # =====================================
 # PAGE TITLE
