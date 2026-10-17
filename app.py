@@ -327,14 +327,20 @@ for i in range(st.session_state["num_bridges"]):
 
     with col1:
 
-        bridge = st.selectbox(
-            f"Bridge Player {i + 1}",
-            player_list,
-            key=key,
-            index=None,
-            placeholder="Type a player name...",
-            format_func=lambda p: display_lookup[p]
+        bridge_name = st_searchbox(
+            search_players,
+            key=f"bridge_search_{i}"
         )
+
+        bridge = None
+
+        if bridge_name:
+
+            for pid, name in display_lookup.items():
+
+                if name == bridge_name:
+                    bridge = pid
+                    break
 
     with col2:
 
