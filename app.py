@@ -6,6 +6,7 @@ python -m streamlit run app.py
 import streamlit as st
 import networkx as nx
 import pickle
+import random
 
 # =====================================
 # PAGE CONFIG
@@ -60,16 +61,22 @@ def get_shortest_path(
         end_player
     )
 
+from itertools import islice
+
 @st.cache_data
 def get_all_shortest_paths(
     start_player,
-    end_player
+    end_player,
+    limit=100
 ):
     return list(
-        nx.all_shortest_paths(
-            G,
-            start_player,
-            end_player
+        islice(
+            nx.all_shortest_paths(
+                G,
+                start_player,
+                end_player
+            ),
+            limit
         )
     )
 
@@ -166,6 +173,15 @@ def clear_end():
 def clear_bridge(idx):
     st.session_state[f"bridge_{idx}"] = None
 
+def random_challenge():
+
+    players = random.sample(
+        player_list,
+        2
+    )
+
+    st.session_state["start_player"] = players[0]
+    st.session_state["end_player"] = players[1]
 
 # =====================================
 # PAGE TITLE
@@ -305,19 +321,11 @@ for i in range(st.session_state["num_bridges"]):
 
     bridges.append(bridge)
 
-import random
-
-if st.button("🎲 Random Challenge"):
-
-    players = random.sample(
-        player_list,
-        2
-    )
-
-    st.session_state["start_player"] = players[0]
-    st.session_state["end_player"] = players[1]
-
-    st.rerun()
+st.button(
+    "🎲 Random Challenge",
+    use_container_width=True,
+    on_click=random_challenge
+)
 
 # =====================================
 # ACTION BUTTONS
@@ -404,7 +412,8 @@ if check_clicked:
 
                     all_shortest = get_all_shortest_paths(
                         start_player,
-                        end_player
+                        end_player,
+                        100
                     )
 
                 except Exception:
